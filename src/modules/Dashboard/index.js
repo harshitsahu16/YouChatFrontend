@@ -43,14 +43,37 @@ const Dashboard = () => {
 
     useEffect(() => {
         if(socket && user) {
-          socket?.emit('addUser', user?.id);
-          socket?.on('getUsers', users => {})
-          socket?.on('getMessage' , data => {
-             setMessages(prev => ({...prev, messages: [...prev.messages , { user: data.user , message: data.message } ]
-              }))
-           });
-          }
-    },[socket]);
+            socket?.emit('addUser', user?.id);
+            socket?.on('getUsers', users => {});
+            socket?.on('getMessage', data => {
+                setMessages(prev => {
+                    if (prev.conversationId === data.conversationId) {
+                        return {...prev, messages: [...prev.messages, { user: data.user, message: data.message }]};
+                    } else {
+                        // Handle case where new message belongs to a different conversation
+                        const newConversation = conversations.find(conv => conv.conversationId === data.conversationId);
+                        if (newConversation) {
+                            fetchMessages(data.conversationId, newConversation.user);
+                        } else {
+                            setConversations([...conversations, { conversationId: data.conversationId, user: data.user }]);
+                            fetchMessages(data.conversationId, data.user);
+                        }
+                        return prev;
+                    }
+                });
+            });
+            socket?.on('updateConversations', data => {
+                const { conversationId, user } = data;
+                setConversations(prevConversations => {
+                    const conversationExists = prevConversations.find(conv => conv.conversationId === conversationId);
+                    if (!conversationExists) {
+                        return [...prevConversations, { conversationId, user }];
+                    }
+                    return prevConversations;
+                });
+            });
+        }
+    }, [socket]);
 
     useEffect(() => {
         messageRef?.current?.scrollIntoView({ behavior: 'smooth'})
@@ -98,7 +121,7 @@ const Dashboard = () => {
         });
         const resData = await res.json()
         setMessages({messages: resData, receiver , conversationId});
-    }
+    };
 
     const sendMessage = async (e) => {
         e.preventDefault();
