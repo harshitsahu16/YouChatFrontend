@@ -262,7 +262,7 @@ const Dashboard = () => {
                         messages.messages.map(({message,user:{id} = {} }) => {
                             return (
                                 <>
-                                <div className={` p-5 text-wrap rounded-b-xl mb-4 ${id === user?.id ? 'bg-primary text-white rounded-tl-xl ml-auto' : 'bg-secondary rounded-tr-xl'} `}>
+                                <div className={` p-5 max-w-[40%]  rounded-b-xl mb-4 ${id === user?.id ? 'bg-primary text-white rounded-tl-xl ml-auto' : 'bg-secondary rounded-tr-xl'} `}>
                                        {capitalizeFirstLetter(message)}
                                 </div>
                                 <div ref={messageRef}>
