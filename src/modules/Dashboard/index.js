@@ -121,57 +121,29 @@ const Dashboard = () => {
         });
         const resData = await res.json()
         setMessages({messages: resData, receiver , conversationId});
-    };
+    }
 
-    const sendMessage = async (e) => {
-        
-    
-        const senderId = user?.id;
-        const receiverId = messages?.receiver?.receiverId;
-        let conversationId = messages?.conversationId || 'new';
-    
-        try {
-            socket?.emit('sendMessage', {
-                senderId,
-                receiverId,
-                conversationId,
-                message
-            });
-    
-            const res = await fetch(`${BASE_URL}/api/message`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    conversationId,
-                    senderId,
-                    message,
-                    receiverId
-                })
-            });
-    
-            if (res.ok) {
-                const data = await res.json();
-    
-                if (conversationId === 'new') {
-                    conversationId = data.conversationId;
-
-                    setMessages(prevMessages => ({
-                        ...prevMessages,
-                        conversationId: data.conversationId
-                    }));
-                }
-    
-                setMessage('');
-            } else {
-                console.error('Error sending message:', await res.text());
-            }
-        } catch (error) {
-            console.error('Error sending message:', error);
-        }
-    };
-    
+    const sendMessage = async(e) => {
+        socket?.emit('sendMessage', {
+            senderId: user?.id,
+            receiverId: messages?.receiver?.receiverId,
+            conversationId: messages?.conversationId,
+            message
+        });
+        const res = await fetch(`${BASE_URL}/api/message` , {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                conversationId: messages?.conversationId,
+                senderId: user?.id,
+                message,
+                receiverId: messages?.receiver?.receiverId
+            })
+        });
+        setMessage('');
+    }
 
     const handleKeyPress = (event) => {
         if (event.key === 'Enter') {
@@ -262,7 +234,7 @@ const Dashboard = () => {
                         messages.messages.map(({message,user:{id} = {} }) => {
                             return (
                                 <>
-                                <div className={` p-5 max-w-[40%]  rounded-b-xl mb-4 ${id === user?.id ? 'bg-primary text-white rounded-tl-xl ml-auto' : 'bg-secondary rounded-tr-xl'} `}>
+                                <div className={` p-5 max-w-[40%] rounded-b-xl mb-4 ${id === user?.id ? 'bg-primary text-white rounded-tl-xl ml-auto' : 'bg-secondary rounded-tr-xl'} `}>
                                        {capitalizeFirstLetter(message)}
                                 </div>
                                 <div ref={messageRef}>
