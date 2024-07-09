@@ -113,20 +113,18 @@ const Dashboard = () => {
     },[user]);
 
     const fetchMessages = async(conversationId, receiver) => {
-        if (conversationId === 'new') {
-            setMessages({ messages: [], receiver, conversationId: 'new' });
-        } else {
-            const res = await fetch(`${BASE_URL}/api/message/${conversationId}?senderId=${user?.id}&&receiverId=${receiver?.receiverId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            const resData = await res.json();
-            setMessages({ messages: resData, receiver, conversationId });
-        }
+        const res = await fetch(`${BASE_URL}/api/message/${conversationId}?senderId=${user?.id}&&receiverId=${receiver?.receiverId}` , {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const resData = await res.json()
+        setMessages({messages: resData, receiver , conversationId});
     };
+
     const sendMessage = async (e) => {
+        
     
         const senderId = user?.id;
         const receiverId = messages?.receiver?.receiverId;
@@ -163,11 +161,6 @@ const Dashboard = () => {
                         ...prevMessages,
                         conversationId: data.conversationId
                     }));
-                    const newConversation = {
-                        conversationId: data.conversationId,
-                        user: messages.receiver
-                    };
-                    setConversations(prevConversations => [...prevConversations, newConversation]);
                 }
     
                 setMessage('');
