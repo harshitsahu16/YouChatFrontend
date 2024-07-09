@@ -124,14 +124,12 @@ const Dashboard = () => {
     };
 
     const sendMessage = async (e) => {
-        e.preventDefault();
     
         const senderId = user?.id;
         const receiverId = messages?.receiver?.receiverId;
         let conversationId = messages?.conversationId || 'new';
     
         try {
-            // Emit the message to the socket
             socket?.emit('sendMessage', {
                 senderId,
                 receiverId,
@@ -139,7 +137,6 @@ const Dashboard = () => {
                 message
             });
     
-            // Send the message to the server
             const res = await fetch(`${BASE_URL}/api/message`, {
                 method: 'POST',
                 headers: {
@@ -156,17 +153,15 @@ const Dashboard = () => {
             if (res.ok) {
                 const data = await res.json();
     
-                // Update the conversation ID if it was a new conversation
                 if (conversationId === 'new') {
                     conversationId = data.conversationId;
-                    // Update the messages state with the new conversation ID
+
                     setMessages(prevMessages => ({
                         ...prevMessages,
                         conversationId: data.conversationId
                     }));
                 }
     
-                // Clear the message input
                 setMessage('');
             } else {
                 console.error('Error sending message:', await res.text());
